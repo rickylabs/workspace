@@ -1,29 +1,44 @@
-import {GetAllPrinterItemResponseModel,GetAllPrinterResponseModel} from "./models.ts"
-import {dbResultSampleData} from "./data.ts"
-import {JsonConvert} from "./utils.ts"
+import {
+  GetAllPrinterItemResponseModel,
+  GetAllPrinterResponseModel,
+} from "./models.ts";
+import { dbResultSampleData } from "./data.ts";
+import { assertType } from "./utils.ts";
 
-async function getAllPrinters(): Promise<GetAllPrinterResponseModel> {
-    try {
-        //const db = MyDbProLabelHelpers.OpenConnexionProLabel();
-        
-        const lstP = dbResultSampleData as unknown as Array<{T: any}> //await db.QueryAsync("select * from base_lignes order by lig_desc");
+export async function getAllPrintersSpreadMethod(): Promise<GetAllPrinterResponseModel> {
+  try {
+    // const db = MyDbProLabelHelpers.OpenConnexionProLabel();
+    const lstP = dbResultSampleData; // await db.QueryAsync("select * from base_lignes order by lig_desc");
 
-        const data = lstP.map(v => {
-              const item = {
-                ...lstP
-              } as unknown as GetAllPrinterItemResponseModel
-              
-              return item
-        })
+    const modelKeys = Object.keys(
+      new GetAllPrinterItemResponseModel()
+    ) as (keyof GetAllPrinterItemResponseModel)[];
 
-        return {
-            IsOk: true,
-            ListPrinter: data
-        };
-    } catch (ex) {
-        return {
-            IsOk: false,
-            Message: `${ex}`
-        };
-    }
+    const data = lstP.reduce<GetAllPrinterItemResponseModel[]>((acc, item) => {
+      const filteredItem = modelKeys.reduce((obj, key) => {
+        if (key in item) {
+          const validItem = item[key];
+          return {
+            ...obj,
+            [key]: validItem,
+          };
+        } else {
+          return obj;
+        }
+      }, {} as GetAllPrinterItemResponseModel);
+
+      acc.push(filteredItem);
+      return acc;
+    }, []);
+
+    return {
+      IsOk: true,
+      ListPrinter: data,
+    };
+  } catch (ex) {
+    return {
+      IsOk: false,
+      Message: ex instanceof Error ? ex.message : String(ex),
+    };
+  }
 }

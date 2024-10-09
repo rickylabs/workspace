@@ -1,5 +1,8 @@
 {
   "imports": {
     "std/": "https://deno.land/std@0.189.0/"
+  },
+  "typescript": {
+    "version": "5.6.3"
   }
 }
