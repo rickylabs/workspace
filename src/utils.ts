@@ -21,7 +21,7 @@ export function assertType<T extends object>(
 ): T[] {
   const modelKeys = Object.keys(new ModelClass()) as (keyof T)[];
 
-  const warns = [];
+  const warns = [] as { message: string }[];
 
   const validation = data.reduce<T[]>((acc, item) => {
     const filteredItem = modelKeys.reduce((obj, key) => {
